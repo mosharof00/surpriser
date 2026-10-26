@@ -35,7 +35,7 @@ function HikingSurpriseApp() {
   const queryName = searchParams.get("name") || "";
 
   // User & Form State
-  const [friendName, setFriendName] = useState(queryName || "My Favorite Hiker");
+  const [friendName, setFriendName] = useState(queryName || "Klodjana");
   const [step, setStep] = useState(0); // 0 to 5
   const [isSoundOn, setIsSoundOn] = useState(false);
 
@@ -838,16 +838,18 @@ function HikingSurpriseApp() {
       )}
 
       {/* Footer Info */}
-      <footer
-        style={{
-          marginTop: "auto",
-          paddingTop: 40,
-          textAlign: "center",
-          color: "var(--text-dim)",
-          fontSize: "0.85rem",
-        }}
-      >
-        <p>Made with love for the mountains of Albania ⛰️ • Ready for Vercel</p>
+      <footer className={styles.footerContainer}>
+        <a
+          href="https://mosharof-khan.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.footerLink}
+          title="Visit Mosharof Khan's Portfolio"
+        >
+          <span>Made with love for the mountains of Albania ⛰️</span>
+          <span>•</span>
+          <span className={styles.footerAuthor}>By</span>
+        </a>
       </footer>
     </div>
   );

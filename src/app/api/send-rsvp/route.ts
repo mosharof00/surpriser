@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     const {
-      friendName = "Her",
+      friendName = "Klodjana",
       trailName = "Albanian Mountain Expedition",
       trailLocation = "Albania",
       hikingVibe = "Scenic & Inspiring",
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 ✨ Trail Vibe: ${hikingVibe}
 🥨 Requested Trail Provisions: ${trailSnack}
 🎒 Your Backpack Responsibilities: ${formattedDuties}
-💬 Note from Her: "${personalMessage || "Ready to climb! Pack the backpack!"}"
+💬 Note from ${friendName}: "${personalMessage || "Ready to climb! Pack the backpack!"}"
 ⏰ Confirmed At: ${new Date(submittedAt).toLocaleString("en-US", { timeZone: "Europe/Tirane" })} (Albania Time)
 --------------------------------------------------------------
 
@@ -41,10 +41,40 @@ Everything is locked in. Get the hiking boots and thermos ready!
 
     const web3formsKey = process.env.WEB3FORMS_ACCESS_KEY || process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
     const webhookUrl = process.env.NOTIFICATION_WEBHOOK_URL;
+    const whatsappPhone = (process.env.WHATSAPP_PHONE || "8801314859997").replace(/[^0-9]/g, "");
+    const callmebotApiKey = process.env.CALLMEBOT_APIKEY;
 
     let emailSent = false;
+    let whatsappSent = false;
 
-    // 1. Send via Web3Forms if API key is provided
+    // 1. Silent WhatsApp notification via CallMeBot (server-to-phone)
+    if (callmebotApiKey && whatsappPhone) {
+      try {
+        const formattedWhatsappMsg = `⛰️ *EXPEDITION ACCEPTED!* 🥾\n\n👤 *Hiker:* ${friendName}\n📍 *Trail:* ${trailName} (${trailLocation})\n📅 *Date:* ${chosenDate}\n✨ *Vibe:* ${hikingVibe}\n🥨 *Fuel:* ${trailSnack}\n🎒 *Backpack Tasks:* ${formattedDuties}\n💬 *Note from Klodjana:* "${personalMessage || "Ready to climb!"}"`;
+
+        const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(
+          whatsappPhone
+        )}&text=${encodeURIComponent(formattedWhatsappMsg)}&apikey=${encodeURIComponent(
+          callmebotApiKey
+        )}`;
+
+        const waRes = await fetch(callmebotUrl, { method: "GET" });
+        if (waRes.ok) {
+          whatsappSent = true;
+          console.log(`[WhatsApp] Silent notification delivered to +${whatsappPhone}`);
+        } else {
+          console.warn("[WhatsApp] CallMeBot response status:", waRes.status);
+        }
+      } catch (err) {
+        console.error("[WhatsApp] Error dispatching to CallMeBot:", err);
+      }
+    } else {
+      console.log(
+        `[WhatsApp] Configured for +${whatsappPhone}. Waiting for CALLMEBOT_APIKEY to enable silent delivery.`
+      );
+    }
+
+    // 2. Send via Web3Forms if API key is provided
     if (web3formsKey) {
       try {
         const res = await fetch("https://api.web3forms.com/submit", {
@@ -79,7 +109,7 @@ Everything is locked in. Get the hiking boots and thermos ready!
       }
     }
 
-    // 2. Optional custom webhook (Discord / Slack / Make / Zapier)
+    // 3. Optional custom webhook (Discord / Slack / Make / Zapier)
     if (webhookUrl) {
       try {
         await fetch(webhookUrl, {
@@ -100,7 +130,9 @@ Everything is locked in. Get the hiking boots and thermos ready!
     return NextResponse.json({
       success: true,
       emailSent,
-      hasKeyConfigured: Boolean(web3formsKey),
+      whatsappSent,
+      hasKeyConfigured: Boolean(web3formsKey || callmebotApiKey),
+      whatsappConfigured: Boolean(callmebotApiKey),
       message: "Expedition confirmed! All trail data registered successfully.",
     });
   } catch (error) {

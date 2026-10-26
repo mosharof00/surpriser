@@ -24,12 +24,12 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://surpriser.vercel.app"),
-  title: "A Summit Secret | An Alpine Invitation for You ⛰️",
+  metadataBase: new URL("https://surprise-klo.vercel.app"),
+  title: "A Summit Secret | An Alpine Invitation for Klodjana ⛰️",
   description:
     "A special invitation to conquer the breathtaking peaks of Albania together.",
   openGraph: {
-    title: "A Summit Secret | An Alpine Invitation for You ⛰️",
+    title: "A Summit Secret | An Alpine Invitation for Klodjana ⛰️",
     description: "Pack your boots. An alpine expedition awaits in Albania.",
     images: ["/images/albanian_alps.jpg"],
   },
